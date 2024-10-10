@@ -1,24 +1,36 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from './components/firebase/config';
+import Navbar from './components/navbar';
+import Login from './components/login';
+import Home from './components/home';
+import AddBlog from './components/Addblog';
+import about from './components/about';
 
 function App() {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <div className="min-h-screen bg-gray-100">
+        <Navbar user={user} />
+        <Routes>
+        <Route path="/" element={<Home />} />
+          <Route path="/about" element={<about />} />
+          <Route path="/login" element={<Login />} />
+          {user && <Route path="/add-blog" element={<AddBlog />} />}
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
